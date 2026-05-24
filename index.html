@@ -235,6 +235,17 @@
       font-size: 10px; font-weight: 700; border-radius: 6px;
       padding: 1px 6px; margin-left: 4px; vertical-align: middle;
     }
+    /* menu name tag (single-menu items) */
+    .ing-menu-tag {
+      display: inline-flex; align-items: center; gap: 4px;
+      margin-top: 4px;
+      font-size: 11px; color: #666;
+      background: #F3F3F0; border-radius: 20px;
+      padding: 2px 8px; line-height: 1.5;
+      max-width: 100%; white-space: nowrap;
+      overflow: hidden; text-overflow: ellipsis;
+    }
+
     /* breakdown per menu */
     .ing-breakdown {
       margin-top: 5px; padding: 6px 8px;
@@ -325,11 +336,17 @@
     .step-item.tip { border-left-color: var(--teal); background: #F0FBF9; }
     .step-item.tip .step-num { background: var(--teal); }
 
-    /* Sub-recipe header inside steps */
+    /* Sub-recipe divider inside steps */
     .step-sub-header {
-      font-size: 13px; font-weight: 700; color: var(--primary);
-      padding: 6px 14px 2px; letter-spacing: .3px;
+      display: flex; align-items: center; gap: 8px;
+      margin: 8px 0 4px;
+      font-size: 13px; font-weight: 700; color: var(--teal);
+      padding: 8px 14px;
+      background: linear-gradient(135deg, #E8F8F5 0%, #F0FBF9 100%);
+      border-left: 4px solid var(--teal);
+      border-radius: 8px;
     }
+    .step-sub-header::before { content: "🌶️"; font-size: 15px; }
 
     /* ── SCROLLBAR ──────────────────────────── */
     ::-webkit-scrollbar { width: 6px; }
@@ -679,13 +696,30 @@ function ingKey(name, unit) {
 function buildIngredients() {
   // Map: ingKey → { name, unit, menus: [{menuName, amount}] }
   const map = {};
+
+  function addIng(ing, label) {
+    const k = ingKey(ing.name, ing.unit);
+    if (!map[k]) map[k] = { name: ing.name, unit: ing.unit, menus: [] };
+    // Merge if same label already exists (main + sub_recipe of same menu)
+    const existing = map[k].menus.find(m => m.menuName === label);
+    const amt = displayAmount(ing.amount || '');
+    if (existing) {
+      if (amt && existing.amount) existing.amount += ' + ' + amt;
+      else if (amt) existing.amount = amt;
+    } else {
+      map[k].menus.push({ menuName: label, amount: amt });
+    }
+  }
+
   for (const menuName of selected) {
     const recipe = recipes[menuName];
     if (!recipe) continue;
-    for (const ing of recipe.ingredients || []) {
-      const k = ingKey(ing.name, ing.unit);
-      if (!map[k]) map[k] = { name: ing.name, unit: ing.unit, menus: [] };
-      map[k].menus.push({ menuName, amount: displayAmount(ing.amount) });
+    // Main ingredients
+    for (const ing of recipe.ingredients || []) addIng(ing, menuName);
+    // Sub-recipe (curry paste) ingredients — same menu label
+    const sr = recipe.sub_recipe;
+    if (sr && sr.ingredients) {
+      for (const ing of sr.ingredients) addIng(ing, menuName);
     }
   }
   return map;
@@ -770,9 +804,12 @@ function renderIngItem(k, v, isShared) {
       <span class="ing-unit">${v.unit}</span>`;
   }
 
-  // Per-menu breakdown (only for shared)
+  // Menu name tag (single-menu) or per-menu breakdown (shared)
   let breakdownHtml = '';
-  if (isShared) {
+  if (!isShared) {
+    const menuName = v.menus[0].menuName;
+    breakdownHtml = `<div><span class="ing-menu-tag">${menuEmoji(menuName)} ${escHtml(menuName)}</span></div>`;
+  } else if (isShared) {
     const rows = v.menus.map(m =>
       `<div class="ing-breakdown-row">
         <span class="menu-dot"></span>
@@ -820,36 +857,39 @@ function renderSteps() {
 
     const cardId = 'sc_' + count;
 
-    // Build step items
-    let stepsHtml = '';
-    let stepNum   = 0;
-    for (const stepText of steps) {
-      const text = stepText.trim();
-      if (!text) continue;
-
-      // Detect sub-recipe section header (e.g. "น้ำพริกแกง ประเภท...")
-      // These are non-numbered lines that introduce a sub-recipe
-      const numMatch = text.match(/^(\d+)\.\s*([\s\S]+)/);
-      if (numMatch) {
-        stepNum++;
-        const body = escHtml(numMatch[2] || '').replace(/\n/g, '<br>');
-        stepsHtml += `
-        <li class="step-item">
-          <div class="step-num">${stepNum}</div>
-          <div class="step-text">${body}</div>
-        </li>`;
-      } else {
-        // Non-numbered chunk — show as a tip/note bullet
-        const body = escHtml(text).replace(/\n/g, '<br>');
-        stepsHtml += `
-        <li class="step-item tip">
-          <div class="step-num">💡</div>
-          <div class="step-text">${body}</div>
-        </li>`;
+    // Helper: build numbered step items
+    function buildStepItems(stepList) {
+      let html = '';
+      let num = 0;
+      for (const stepText of stepList) {
+        const text = stepText.trim();
+        if (!text) continue;
+        const numMatch = text.match(/^(\d+)\.\s*([\s\S]+)/);
+        if (numMatch) {
+          num++;
+          const body = escHtml(numMatch[2] || '').replace(/\n/g, '<br>');
+          html += `<li class="step-item"><div class="step-num">${num}</div><div class="step-text">${body}</div></li>`;
+        } else {
+          const body = escHtml(text).replace(/\n/g, '<br>');
+          html += `<li class="step-item tip"><div class="step-num">💡</div><div class="step-text">${body}</div></li>`;
+        }
       }
+      return html;
     }
 
-    const bodyHeight = steps.length * 80; // rough estimate for transition
+    // Main recipe steps
+    let stepsHtml = buildStepItems(steps);
+
+    // Sub-recipe (curry paste) section
+    const sr = recipe.sub_recipe;
+    if (sr && sr.steps && sr.steps.length > 0) {
+      const srName = escHtml(sr.name || 'วิธีทำพริกแกง');
+      stepsHtml += `<li style="list-style:none"><div class="step-sub-header">${srName}</div></li>`;
+      stepsHtml += buildStepItems(sr.steps);
+    }
+
+    const totalSteps = steps.length + (sr && sr.steps ? sr.steps.length : 0);
+    const bodyHeight = totalSteps * 80 + 200;
     html += `
     <div class="steps-card">
       <div class="steps-card-head" data-wrap="${cardId}">
@@ -859,7 +899,7 @@ function renderSteps() {
         </div>
         <span class="toggle-icon">▾</span>
       </div>
-      <div class="steps-body" id="${cardId}" style="max-height:${bodyHeight + 200}px">
+      <div class="steps-body" id="${cardId}" style="max-height:${bodyHeight}px">
         <ol class="steps-ol">${stepsHtml}</ol>
       </div>
     </div>`;
