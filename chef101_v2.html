@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🍜 ครัวไทย — เลือกเมนู วางแผนวัตถุดิบ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+/* ══════════════════════════════════════
+   TOKENS
+══════════════════════════════════════ */
+:root {
+  --bg:        #FDFAF6;
+  --surface:   #FFFFFF;
+  --surf2:     #F9F5F0;
+  --pri:       #C0392B;
+  --pri-dk:    #922B21;
+  --pri-lit:   #F5B7B1;
+  --pri-bg:    #FFF5F3;
+  --shared-bg: #FFF0EC;
+  --shared-bd: #F5B7B1;
+  --shared-ac: #C0392B;
+  --gold:      #C47A0A;
+  --teal:      #0E9AA0;
+  --green:     #1A7A40;
+  --text:      #1C1412;
+  --muted:     #7A6A64;
+  --subtle:    #B0A49E;
+  --border:    #EDE0D8;
+  --border-md: #D9C9BF;
+  --shad-sm:   0 2px 8px rgba(0,0,0,.08);
+  --shad-md:   0 6px 28px rgba(0,0,0,.11), 0 2px 6px rgba(0,0,0,.06);
+  --shad-lg:   0 20px 56px rgba(0,0,0,.15), 0 6px 16px rgba(0,0,0,.08);
+  --r-xs: 6px; --r-sm: 10px; --r-md: 16px;
+  --r-lg: 22px; --r-xl: 30px; --r-full: 9999px;
+  --ease:    cubic-bezier(.4,0,.2,1);
+  --spring:  cubic-bezier(.34,1.56,.64,1);
+  --pad: 20px; --max-w: 1300px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Sarabun',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
+button{font-family:inherit;border:none;cursor:pointer}
+input{font-family:inherit}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border-md);border-radius:3px}
+
+/* ══════════════════════════════════════
+   NAVBAR  (simplified — no search)
+══════════════════════════════════════ */
+.nav{
+  position:sticky;top:0;z-index:100;
+  background:rgba(253,250,246,.94);
+  backdrop-filter:blur(20px) saturate(180%);
+  border-bottom:1.5px solid var(--border);
+}
+.nav-in{
+  max-width:var(--max-w);margin:0 auto;
+  padding:0 var(--pad);
+  height:60px;display:flex;align-items:center;gap:14px;
+}
+.logo{display:flex;align-items:center;gap:9px;flex-shrink:0}
+.logo-mark{
+  width:38px;height:38px;border-radius:12px;
+  background:linear-gradient(135deg,#C0392B,#E74C3C);
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;box-shadow:0 2px 8px rgba(192,57,43,.35);
+}
+.logo-info{display:flex;flex-direction:column;line-height:1.15}
+.logo-title{font-size:15px;font-weight:800;color:var(--pri);letter-spacing:-.3px}
+.logo-sub{font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.3px}
+
+/* nav selected count pill */
+.nav-sel{
+  margin-left:auto;display:flex;align-items:center;gap:8px;
+  background:var(--surface);border:1.5px solid var(--border-md);
+  border-radius:var(--r-full);padding:6px 14px;
+  font-size:13px;font-weight:700;color:var(--muted);
+  transition:all .2s;cursor:pointer;
+}
+.nav-sel.has-items{background:var(--pri);border-color:var(--pri);color:#fff}
+.nav-sel-n{
+  background:rgba(255,255,255,.25);border-radius:var(--r-full);
+  min-width:20px;height:20px;padding:0 5px;
+  font-size:12px;font-weight:800;
+  display:inline-flex;align-items:center;justify-content:center;
+}
+.nav-sel:not(.has-items) .nav-sel-n{background:var(--border);color:var(--muted)}
+
+/* ══════════════════════════════════════
+   HERO
+══════════════════════════════════════ */
+.hero{
+  background:
+    radial-gradient(ellipse at 12% 80%,rgba(192,57,43,.28) 0%,transparent 55%),
+    radial-gradient(ellipse at 88% 15%,rgba(212,134,11,.20) 0%,transparent 50%),
+    linear-gradient(160deg,#1A0803 0%,#3D1008 40%,#6B2010 75%,#2C0D06 100%);
+  padding:52px var(--pad) 72px;
+  text-align:center;position:relative;overflow:hidden;
+}
+.hero-float{position:absolute;inset:0;pointer-events:none}
+.hero-float span{
+  position:absolute;font-size:34px;opacity:.06;
+  animation:hfloat var(--d,8s) var(--dl,0s) ease-in-out infinite;
+}
+@keyframes hfloat{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-18px) rotate(4deg)}}
+.hero-c{position:relative;z-index:1}
+.hero-pill{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);
+  border-radius:var(--r-full);padding:5px 16px;
+  font-size:11px;font-weight:700;color:rgba(255,255,255,.8);
+  letter-spacing:.8px;text-transform:uppercase;margin-bottom:18px;
+}
+.hero-title{
+  font-size:clamp(28px,5vw,50px);font-weight:800;color:#fff;
+  letter-spacing:-1.5px;line-height:1.1;margin-bottom:12px;
+}
+.hero-title em{color:#FBBF24;font-style:normal}
+.hero-desc{
+  color:rgba(255,255,255,.65);font-size:16px;font-weight:500;
+  max-width:440px;margin:0 auto 32px;line-height:1.6;
+}
+.hero-stats{
+  display:inline-flex;align-items:center;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);
+  border-radius:var(--r-full);overflow:hidden;
+}
+.h-stat{padding:10px 22px;display:flex;flex-direction:column;align-items:center;gap:1px}
+.h-stat:not(:last-child){border-right:1px solid rgba(255,255,255,.14)}
+.h-stat-n{font-size:22px;font-weight:800;color:#FBBF24;line-height:1}
+.h-stat-l{font-size:11px;font-weight:600;color:rgba(255,255,255,.55)}
+.wave{margin-bottom:-2px}.wave svg{display:block;fill:var(--bg)}
+
+/* ══════════════════════════════════════
+   FILTER BAR
+══════════════════════════════════════ */
+.filter-bar{
+  position:sticky;top:60px;z-index:90;
+  background:rgba(253,250,246,.96);backdrop-filter:blur(12px);
+  border-bottom:1.5px solid var(--border);
+  margin:0 calc(-1 * var(--pad));
+}
+.filter-in{
+  max-width:var(--max-w);margin:0 auto;
+  padding:10px var(--pad);
+  display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;
+}
+.filter-in::-webkit-scrollbar{display:none}
+.f-btn{
+  display:flex;align-items:center;gap:6px;flex-shrink:0;
+  height:34px;padding:0 14px;border-radius:var(--r-full);
+  border:1.5px solid var(--border);background:var(--surface);color:var(--muted);
+  font-size:13px;font-weight:600;white-space:nowrap;
+  transition:all .18s var(--ease);
+}
+.f-btn:hover:not(.on){border-color:var(--pri);color:var(--pri)}
+.f-btn.on{background:var(--pri);border-color:var(--pri);color:#fff;box-shadow:var(--shad-sm)}
+
+/* ══════════════════════════════════════
+   MAIN
+══════════════════════════════════════ */
+.main{max-width:var(--max-w);margin:0 auto;padding:0 var(--pad) 80px}
+
+/* Section head */
+.sec-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:24px 0 14px;
+}
+.sec-head h2{font-size:19px;font-weight:800;letter-spacing:-.3px}
+.sec-head p{font-size:13px;color:var(--muted);margin-top:1px}
+.count-chip{
+  padding:3px 11px;border-radius:var(--r-full);
+  background:var(--border);color:var(--muted);
+  font-size:13px;font-weight:700;
+}
+
+/* ══ INLINE SEARCH BAR ══ */
+.inline-search{
+  margin-bottom:16px;position:relative;
+}
+.inline-search input{
+  width:100%;height:46px;
+  border:2px solid var(--border-md);border-radius:var(--r-md);
+  padding:0 16px 0 46px;
+  font-size:15px;background:var(--surface);color:var(--text);
+  outline:none;transition:border-color .2s,box-shadow .2s;
+}
+.inline-search input::placeholder{color:var(--subtle)}
+.inline-search input:focus{
+  border-color:var(--pri);
+  box-shadow:0 0 0 3px rgba(192,57,43,.12);
+}
+.inline-search .si{
+  position:absolute;left:15px;top:50%;transform:translateY(-50%);
+  font-size:18px;pointer-events:none;
+}
+
+/* ══════════════════════════════════════
+   RECIPE GRID
+══════════════════════════════════════ */
+.recipe-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(155px,1fr));
+  gap:10px;
+}
+
+/* ══════════════════════════════════════
+   RECIPE CARD
+══════════════════════════════════════ */
+.card{
+  background:var(--surface);border-radius:var(--r-md);
+  border:1.5px solid var(--border);overflow:hidden;
+  cursor:pointer;user-select:none;
+  transition:transform .2s var(--ease),box-shadow .2s,border-color .2s,background .2s;
+  position:relative;
+}
+.card:hover{transform:translateY(-3px);box-shadow:var(--shad-md);border-color:var(--border-md)}
+.card.selected{
+  border-color:var(--pri);
+  box-shadow:0 0 0 2px var(--pri),var(--shad-md);
+}
+
+/* Card top visual */
+.card-vis{
+  height:116px;position:relative;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+}
+.card-vis::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 30% 25%,rgba(255,255,255,.22) 0%,transparent 65%);
+  z-index:1;
+}
+.card-vis::after{
+  content:'';position:absolute;inset:0;
+  background-image:radial-gradient(rgba(255,255,255,.14) 1px,transparent 1px);
+  background-size:18px 18px;z-index:2;
+}
+.card-emoji{
+  font-size:52px;line-height:1;position:relative;z-index:3;
+  filter:drop-shadow(0 4px 12px rgba(0,0,0,.25));
+  transition:transform .3s var(--spring);
+}
+.card:hover .card-emoji{transform:scale(1.1) translateY(-3px)}
+.card.selected .card-emoji{transform:scale(1.06)}
+
+/* Checkmark badge on card vis */
+.card-ck{
+  position:absolute;top:9px;right:9px;z-index:4;
+  width:24px;height:24px;border-radius:50%;
+  background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.5);
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;color:transparent;
+  transition:all .22s var(--spring);backdrop-filter:blur(4px);
+}
+.card.selected .card-ck{
+  background:#fff;border-color:#fff;
+  color:var(--pri);font-size:12px;
+  box-shadow:0 2px 6px rgba(0,0,0,.2);
+}
+
+/* Card body — changes BG when selected */
+.card-body{
+  padding:10px 11px 12px;
+  transition:background .22s var(--ease);
+}
+.card.selected .card-body{
+  background:linear-gradient(160deg,#FFF0EC 0%,#FFF8F5 100%);
+}
+
+.card-name{
+  font-size:13px;font-weight:700;line-height:1.35;
+  color:var(--text);margin-bottom:7px;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+  transition:color .22s;
+}
+.card.selected .card-name{color:var(--pri)}
+
+.card-cat{
+  display:inline-flex;align-items:center;
+  font-size:10px;font-weight:700;border-radius:5px;
+  padding:2px 7px;text-transform:uppercase;letter-spacing:.3px;
+}
+.cat-ข้าว    {background:#FEF3C7;color:#92400E}
+.cat-แกง     {background:#FEE2E2;color:#991B1B}
+.cat-ผัด     {background:#FFF7ED;color:#9A3412}
+.cat-ยำ      {background:#DCFCE7;color:#166534}
+.cat-ปลา     {background:#E0F2FE;color:#0C4A6E}
+.cat-น้ำพริก {background:#FCE7F3;color:#9D174D}
+.cat-ของหวาน {background:#F3E8FF;color:#6B21A8}
+.cat-อื่นๆ   {background:#F1F5F9;color:#475569}
+
+.card.hidden{display:none}
+
+/* ══════════════════════════════════════
+   RESULTS SECTION  (below grid)
+══════════════════════════════════════ */
+.results-section{
+  margin-top:48px;
+  border-top:2px solid var(--border);
+  padding-top:36px;
+  display:none; /* shown by JS */
+  animation:slideUp .4s var(--ease) both;
+}
+@keyframes slideUp{
+  from{opacity:0;transform:translateY(24px)}
+  to  {opacity:1;transform:translateY(0)}
+}
+
+.results-head{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:20px;flex-wrap:wrap;gap:10px;
+}
+.results-head h2{font-size:19px;font-weight:800;letter-spacing:-.3px}
+.results-head-right{display:flex;gap:8px;align-items:center}
+
+/* ── 2-column layout ── */
+.results-2col{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:20px;
+  align-items:start;
+}
+@media(max-width:760px){.results-2col{grid-template-columns:1fr}}
+
+/* Results panel */
+.r-panel{
+  background:var(--surface);border-radius:var(--r-lg);
+  border:1.5px solid var(--border);overflow:hidden;
+}
+.r-panel-head{
+  display:flex;align-items:center;gap:10px;
+  padding:14px 18px;border-bottom:1.5px solid var(--border);
+  background:var(--surf2);
+}
+.r-panel-head h3{font-size:16px;font-weight:800;flex:1;letter-spacing:-.2px}
+.r-badge{
+  padding:3px 10px;border-radius:var(--r-full);
+  font-size:12px;font-weight:700;
+}
+.r-badge-pri{background:var(--pri);color:#fff}
+.r-badge-teal{background:var(--teal);color:#fff}
+.r-panel-body{padding:12px;max-height:640px;overflow-y:auto}
+
+/* ══════════════════════════════════════
+   INGREDIENT ITEMS
+══════════════════════════════════════ */
+/* --- group labels --- */
+.ing-group{margin-bottom:18px}
+.ing-group-label{
+  display:flex;align-items:center;gap:7px;
+  font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;
+  color:var(--muted);margin-bottom:8px;padding:0 4px;
+}
+.ing-group-label .gl-n{
+  background:var(--border);border-radius:var(--r-full);
+  padding:1px 8px;font-size:10px;
+}
+.ing-group-label.shared-lbl{color:var(--pri)}
+.ing-group-label.shared-lbl .gl-n{background:#FEE2E2;color:var(--pri)}
+
+/* --- SHARED ingredient card (visually strong) --- */
+.ing-item{
+  display:flex;align-items:flex-start;gap:11px;
+  padding:12px 13px;border-radius:var(--r-md);
+  border:1.5px solid var(--border);
+  margin-bottom:7px;cursor:pointer;background:var(--surface);
+  transition:border-color .18s,background .18s,transform .15s;
+}
+.ing-item:hover{transform:translateX(2px)}
+
+/* SHARED — strong accent */
+.ing-item.shared{
+  background:linear-gradient(to right,var(--shared-bg) 0%,#FFFAF8 100%);
+  border-color:var(--shared-bd);
+  border-left:4px solid var(--shared-ac);
+}
+.ing-item.shared:hover{background:linear-gradient(to right,#FFEAE5 0%,#FFF5F2 100%)}
+
+/* done state */
+.ing-item.done{opacity:.46}
+.ing-item.done .ing-name{text-decoration:line-through}
+
+/* checkbox */
+.ing-cb{
+  flex-shrink:0;width:22px;height:22px;border-radius:7px;
+  border:2px solid var(--border-md);
+  display:flex;align-items:center;justify-content:center;
+  transition:all .2s var(--spring);margin-top:1px;background:#fff;
+}
+.ing-cb:hover{border-color:var(--pri)}
+.ing-cb.checked{background:var(--green);border-color:var(--green)}
+.ing-cb.checked::after{content:'✓';color:#fff;font-size:13px;font-weight:800}
+
+.ing-body{flex:1;min-width:0}
+
+/* shared badge strip above name */
+.ing-shared-strip{
+  display:flex;align-items:center;gap:6px;margin-bottom:5px;
+}
+/* .ing-shared-badge — bg/color/border set via inline style per menu */
+.ing-shared-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  font-size:11px;font-weight:700;border-radius:var(--r-full);
+  padding:3px 9px;white-space:nowrap;
+}
+.ing-shared-menus{
+  font-size:10px;color:var(--muted);font-weight:600;
+}
+
+.ing-row1{display:flex;align-items:baseline;gap:7px;flex-wrap:wrap}
+.ing-name  {font-size:14px;font-weight:700}
+.ing-amount{font-size:14px;font-weight:800;color:var(--pri);white-space:nowrap}
+.ing-unit  {font-size:12px;color:var(--muted)}
+
+/* menu chip (single-menu items) — color applied via inline style */
+.ing-menu-chip{
+  display:inline-flex;align-items:center;gap:4px;
+  border-radius:var(--r-full);border:1.5px solid;
+  padding:3px 10px;font-size:11px;font-weight:700;
+  margin-top:5px;max-width:100%;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+
+/* legend strip at top of ingredient list */
+.menu-legend{
+  display:flex;flex-wrap:wrap;gap:6px;
+  padding:10px 14px 12px;
+  border-bottom:1.5px solid var(--border);
+  margin-bottom:4px;
+}
+.legend-chip{
+  display:inline-flex;align-items:center;gap:5px;
+  border-radius:var(--r-full);border:1.5px solid;
+  padding:4px 12px;font-size:12px;font-weight:700;
+  white-space:nowrap;
+}
+
+/* shared badge — color via inline style */
+.ing-shared-icon{
+  display:inline-flex;align-items:center;
+  font-size:10px;font-weight:700;color:var(--pri);
+  margin-right:4px;white-space:nowrap;
+}
+
+/* breakdown rows (shared) */
+.ing-breakdown{
+  margin-top:7px;padding:7px 10px;border-radius:var(--r-xs);
+  background:rgba(192,57,43,.06);
+  border-left:3px solid var(--pri-lit);
+}
+.ing-bd-row{
+  font-size:12px;color:var(--text);line-height:2;
+  display:flex;align-items:center;gap:5px;
+}
+.ing-bd-row::before{content:'·';color:var(--pri);font-weight:700;font-size:15px}
+.bd-amt{font-weight:700;color:var(--pri)}
+
+/* ══════════════════════════════════════
+   STEPS PANEL
+══════════════════════════════════════ */
+.steps-card{
+  border:1.5px solid var(--border);border-radius:var(--r-lg);
+  overflow:hidden;margin-bottom:10px;
+}
+.steps-card-head{
+  display:flex;align-items:center;gap:10px;
+  padding:13px 15px;cursor:pointer;
+  background:linear-gradient(135deg,#FFF8F2,#FFFDF9);
+  border-bottom:1.5px solid var(--border);
+  transition:background .18s;user-select:none;
+}
+.steps-card-head:hover{background:linear-gradient(135deg,#FFF0E4,#FFF8F2)}
+.steps-card-head.closed{border-bottom-color:transparent}
+.sch-e{font-size:20px;flex-shrink:0}
+.sch-n{flex:1;font-size:14px;font-weight:700}
+.sch-c{font-size:12px;color:var(--muted);font-weight:600}
+.sch-t{color:var(--muted);font-size:14px;transition:transform .22s var(--ease)}
+.steps-card-head.closed .sch-t{transform:rotate(-90deg)}
+.steps-body{overflow:hidden;transition:max-height .3s var(--ease)}
+.steps-body.closed{max-height:0 !important}
+.steps-list{padding:12px 14px 14px;display:flex;flex-direction:column;gap:7px}
+
+.step-sub-lbl{
+  display:flex;align-items:center;gap:8px;
+  padding:7px 11px;border-radius:var(--r-xs);
+  background:#E8F8F9;border-left:3px solid var(--teal);
+  font-size:12px;font-weight:700;color:var(--teal);margin:4px 0;
+}
+.step-sub-lbl::before{content:'🌿';font-size:14px}
+
+.step-row{
+  display:flex;gap:10px;align-items:flex-start;
+  padding:9px 11px;border-radius:var(--r-sm);
+  background:var(--surf2);border:1px solid var(--border);
+}
+.step-row.tip{background:#FFFBEB;border-color:#FDE68A}
+.step-num{
+  flex-shrink:0;width:24px;height:24px;border-radius:50%;
+  background:var(--pri);color:#fff;font-size:11px;font-weight:800;
+  display:flex;align-items:center;justify-content:center;margin-top:2px;
+}
+.step-row.tip .step-num{background:var(--gold);font-size:13px}
+.step-text{font-size:13px;line-height:1.75;color:var(--text);flex:1}
+
+/* ══════════════════════════════════════
+   PROGRESS BAR
+══════════════════════════════════════ */
+.prog-wrap{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 18px 14px;
+}
+.prog-bg{flex:1;height:6px;border-radius:3px;background:var(--border);overflow:hidden}
+.prog-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--green),#27AE60);transition:width .4s var(--ease)}
+.prog-lbl{font-size:12px;font-weight:700;color:var(--muted);white-space:nowrap}
+.prog-lbl span{color:var(--green)}
+
+/* ══════════════════════════════════════
+   BUTTONS
+══════════════════════════════════════ */
+.btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:8px 16px;border-radius:var(--r-sm);
+  border:1.5px solid var(--border);background:var(--surface);
+  color:var(--muted);font-size:13px;font-weight:700;
+  cursor:pointer;transition:all .18s;
+}
+.btn:hover{border-color:var(--border-md);color:var(--text)}
+.btn-pri{background:var(--pri);border-color:var(--pri);color:#fff}
+.btn-pri:hover{background:var(--pri-dk);border-color:var(--pri-dk)}
+.btn-danger:hover{border-color:var(--pri);color:var(--pri)}
+.btn-teal:hover{border-color:var(--teal);color:var(--teal)}
+.btn-copy:hover{border-color:var(--teal);background:var(--teal);color:#fff}
+
+/* ══════════════════════════════════════
+   EMPTY STATE
+══════════════════════════════════════ */
+.empty{
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;padding:52px 20px;text-align:center;color:var(--muted);
+}
+.empty-icon {font-size:48px;margin-bottom:12px;opacity:.55}
+.empty-title{font-size:16px;font-weight:700;color:var(--text);margin-bottom:5px}
+.empty-desc {font-size:13px}
+
+/* ══════════════════════════════════════
+   TOAST
+══════════════════════════════════════ */
+.toast{
+  position:fixed;top:72px;left:50%;z-index:9999;
+  transform:translateX(-50%) translateY(-14px);
+  background:#1C1410;color:#fff;
+  padding:10px 22px;border-radius:var(--r-full);
+  font-size:14px;font-weight:600;
+  box-shadow:var(--shad-md);opacity:0;pointer-events:none;
+  transition:all .32s cubic-bezier(.34,1.56,.64,1);white-space:nowrap;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ══════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════ */
+@media(max-width:768px){
+  :root{--pad:14px}
+  .hero{padding:40px var(--pad) 56px}
+  .hero-title{font-size:27px}
+  .recipe-grid{grid-template-columns:repeat(auto-fill,minmax(125px,1fr));gap:8px}
+  .card-vis{height:94px}.card-emoji{font-size:42px}
+  .inline-search input{font-size:14px;height:42px}
+}
+@media(max-width:420px){
+  .recipe-grid{grid-template-columns:repeat(3,1fr);gap:7px}
+  .card-vis{height:84px}.card-emoji{font-size:38px}
+}
+
+.no-res{
+  grid-column:1/-1;text-align:center;
+  padding:48px 20px;color:var(--muted);
+}
+.no-res-icon{font-size:42px;opacity:.4;margin-bottom:10px}
+  </style>
+</head>
+<body>
+
+<!-- ══ NAVBAR ════════════════════════════════ -->
+<nav class="nav">
+  <div class="nav-in">
+    <div class="logo">
+      <div class="logo-mark">🍜</div>
+      <div class="logo-info">
+        <span class="logo-title">ครัวไทย</span>
+        <span class="logo-sub">MASTER CHEF 101</span>
+      </div>
+    </div>
+    <button class="nav-sel" id="nav-sel">
+      🛒 เมนูที่เลือก
+      <span class="nav-sel-n" id="nav-sel-n">0</span>
+    </button>
+  </div>
+</nav>
+
+<!-- ══ HERO ══════════════════════════════════ -->
+<section class="hero">
+  <div class="hero-float" id="hero-float" aria-hidden="true"></div>
+  <div class="hero-c">
+    <div class="hero-pill">🌶️ ตำรับไทยแท้ · THAI KITCHEN</div>
+    <h1 class="hero-title">เลือกเมนู<br><em>วางแผนวัตถุดิบ</em></h1>
+    <p class="hero-desc">เลือกเมนูที่จะทำ แอปจะรวมวัตถุดิบให้อัตโนมัติ พร้อมวิธีทำทีละขั้นตอน</p>
+    <div class="hero-stats">
+      <div class="h-stat"><span class="h-stat-n" id="stat-n">—</span><span class="h-stat-l">เมนู</span></div>
+      <div class="h-stat"><span class="h-stat-n" id="stat-i">—</span><span class="h-stat-l">วัตถุดิบ</span></div>
+      <div class="h-stat"><span class="h-stat-n">7</span><span class="h-stat-l">หมวด</span></div>
+    </div>
+  </div>
+</section>
+<div class="wave">
+  <svg viewBox="0 0 1440 48" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" height="48" width="100%">
+    <path d="M0,24 C240,48 480,0 720,24 C960,48 1200,0 1440,24 L1440,48 L0,48 Z"/>
+  </svg>
+</div>
+
+<!-- ══ FILTER BAR ═════════════════════════════ -->
+<div class="filter-bar">
+  <div class="filter-in" id="filter-in">
+    <button class="f-btn on" data-cat="all">🍽️ ทั้งหมด</button>
+    <button class="f-btn" data-cat="ข้าว">🍚 ข้าว</button>
+    <button class="f-btn" data-cat="แกง">🥘 แกง / ต้ม</button>
+    <button class="f-btn" data-cat="ผัด">🥄 ผัด</button>
+    <button class="f-btn" data-cat="ยำ">🥗 ยำ / ลาบ</button>
+    <button class="f-btn" data-cat="ปลา">🐟 ปลา / ทะเล</button>
+    <button class="f-btn" data-cat="น้ำพริก">🌶️ น้ำพริก</button>
+    <button class="f-btn" data-cat="ของหวาน">🍮 ของหวาน</button>
+    <button class="f-btn" data-cat="อื่นๆ">🫙 อื่นๆ</button>
+  </div>
+</div>
+
+<!-- ══ MAIN ═══════════════════════════════════ -->
+<main class="main">
+
+  <!-- Section header -->
+  <div class="sec-head">
+    <div>
+      <h2>เมนูทั้งหมด</h2>
+      <p>คลิกเพื่อเลือกเมนูที่ต้องการทำ</p>
+    </div>
+    <span class="count-chip" id="grid-count">— เมนู</span>
+  </div>
+
+  <!-- ══ SEARCH BAR (inline, near the grid) ══ -->
+  <div class="inline-search">
+    <span class="si">🔍</span>
+    <input type="text" id="search-q" placeholder="ค้นหาเมนู เช่น ผัดไทย, ต้มยำ, แกงเขียว..." autocomplete="off">
+  </div>
+
+  <!-- Recipe grid -->
+  <div class="recipe-grid" id="recipe-grid"></div>
+
+  <!-- ══ RESULTS SECTION (below grid) ══════════ -->
+  <div class="results-section" id="results-section">
+
+    <div class="results-head">
+      <h2>📋 สรุปสำหรับเมนูที่เลือก</h2>
+      <div class="results-head-right">
+        <button class="btn btn-teal" id="btn-copy">📋 คัดลอก</button>
+        <button class="btn btn-danger" id="btn-clear">🗑️ ล้างทั้งหมด</button>
+      </div>
+    </div>
+
+    <div class="results-2col">
+
+      <!-- ── LEFT: Ingredients ── -->
+      <div class="r-panel">
+        <div class="r-panel-head">
+          <span style="font-size:20px">🛒</span>
+          <h3>วัตถุดิบที่ต้องเตรียม</h3>
+          <span class="r-badge r-badge-pri" id="ing-count">0</span>
+        </div>
+        <!-- Progress -->
+        <div class="prog-wrap" id="prog-wrap" style="display:none">
+          <div class="prog-bg"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+          <div class="prog-lbl">ซื้อแล้ว <span id="prog-txt">0/0</span></div>
+        </div>
+        <div class="r-panel-body" id="ing-list">
+          <div class="empty">
+            <div class="empty-icon">🛒</div>
+            <div class="empty-title">ยังไม่มีรายการ</div>
+            <div class="empty-desc">เลือกเมนูก่อนนะคะ</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── RIGHT: Steps ── -->
+      <div class="r-panel">
+        <div class="r-panel-head">
+          <span style="font-size:20px">👨‍🍳</span>
+          <h3>วิธีทำ &amp; เคล็ดลับ</h3>
+          <span class="r-badge r-badge-teal" id="steps-count">0</span>
+        </div>
+        <div class="r-panel-body" id="steps-list">
+          <div class="empty">
+            <div class="empty-icon">👨‍🍳</div>
+            <div class="empty-title">เลือกเมนูก่อน</div>
+            <div class="empty-desc">จะได้ดูวิธีทำทีละขั้นตอน</div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /results-2col -->
+  </div><!-- /results-section -->
+
+</main>
+
+<!-- ══ TOAST ═══════════════════════════════════ -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ══════════════════════════════════════
+   DISH STYLES
+══════════════════════════════════════ */
+function getDishStyle(n){
+  const m=[
+    {r:/ข้าวหอมมะลิ/,    e:'🌾',g:'linear-gradient(135deg,#F59E0B,#FCD34D)'},
+    {r:/ข้าวกล้อง/,      e:'🌾',g:'linear-gradient(135deg,#92400E,#B45309)'},
+    {r:/ข้าวเหนียวนึ่ง/, e:'🍚',g:'linear-gradient(135deg,#FDE68A,#FEF3C7)'},
+    {r:/ข้าวต้มขาว/,     e:'🥣',g:'linear-gradient(135deg,#CBD5E1,#F1F5F9)'},
+    {r:/ข้าวมันไก่/,     e:'🐓',g:'linear-gradient(135deg,#FEF3C7,#FDE68A)'},
+    {r:/ข้าวผัดปู/,      e:'🦀',g:'linear-gradient(135deg,#EA580C,#FCD34D)'},
+    {r:/ข้าวผัดสับปะรด/, e:'🍍',g:'linear-gradient(135deg,#F59E0B,#84CC16)'},
+    {r:/ข้าวซอย/,        e:'🍜',g:'linear-gradient(135deg,#B45309,#FCD34D)'},
+    {r:/ข้าวผัด/,        e:'🍳',g:'linear-gradient(135deg,#F59E0B,#FDE68A)'},
+    {r:/ข้าว/,           e:'🍚',g:'linear-gradient(135deg,#FCD34D,#FEF3C7)'},
+    {r:/ไข่เจียว/,       e:'🍳',g:'linear-gradient(135deg,#FCD34D,#FDE68A)'},
+    {r:/ไข่ตุ๋น/,        e:'🥚',g:'linear-gradient(135deg,#E5E7EB,#FEF3C7)'},
+    {r:/ไข่พะโล้/,       e:'🥚',g:'linear-gradient(135deg,#6B3A1F,#92400E)'},
+    {r:/เปาะเปี๊ยะ/,     e:'🥟',g:'linear-gradient(135deg,#B45309,#FCD34D)'},
+    {r:/กระทงทอง/,       e:'🥟',g:'linear-gradient(135deg,#D97706,#FCD34D)'},
+    {r:/ทอดมันปลา/,      e:'🐟',g:'linear-gradient(135deg,#D97706,#FB923C)'},
+    {r:/สะเต๊ะ/,         e:'🍢',g:'linear-gradient(135deg,#92400E,#D97706)'},
+    {r:/ช่อม่วง/,        e:'🌸',g:'linear-gradient(135deg,#5B21B6,#8B5CF6)'},
+    {r:/ยำวุ้นเส้น/,     e:'🌶️',g:'linear-gradient(135deg,#EA580C,#FDE68A)'},
+    {r:/ยำถั่วพู/,       e:'🫘',g:'linear-gradient(135deg,#16A34A,#86EFAC)'},
+    {r:/ลาบ/,            e:'🌿',g:'linear-gradient(135deg,#B91C1C,#F97316)'},
+    {r:/ส้มตำ/,          e:'🥗',g:'linear-gradient(135deg,#15803D,#84CC16)'},
+    {r:/คอหมูย่าง/,      e:'🥩',g:'linear-gradient(135deg,#7F1D1D,#DC2626)'},
+    {r:/ไก่ย่าง/,        e:'🍗',g:'linear-gradient(135deg,#92400E,#D97706)'},
+    {r:/หมูทอดกระเทียม/, e:'🧄',g:'linear-gradient(135deg,#6B3A1F,#D97706)'},
+    {r:/น้ำต้มกระดูก/,   e:'🦴',g:'linear-gradient(135deg,#78350F,#B45309)'},
+    {r:/น้ำต้มเปลือก/,   e:'🦐',g:'linear-gradient(135deg,#C2410C,#FB923C)'},
+    {r:/แกงเลียง/,       e:'🫕',g:'linear-gradient(135deg,#15803D,#4ADE80)'},
+    {r:/แกงส้ม/,         e:'🍊',g:'linear-gradient(135deg,#C2410C,#FB923C)'},
+    {r:/ต้มยำกุ้งน้ำใส/, e:'🦐',g:'linear-gradient(135deg,#B91C1C,#F97316)'},
+    {r:/ต้มยำกุ้งน้ำข้น/,e:'🦐',g:'linear-gradient(135deg,#991B1B,#DC2626)'},
+    {r:/ต้มยำ/,          e:'🦐',g:'linear-gradient(135deg,#DC2626,#F97316)'},
+    {r:/โป๊ะแตก/,        e:'🍲',g:'linear-gradient(135deg,#0E7490,#22C55E)'},
+    {r:/แกงป่า/,         e:'🌿',g:'linear-gradient(135deg,#166534,#4ADE80)'},
+    {r:/แกงเหลือง/,      e:'🟡',g:'linear-gradient(135deg,#CA8A04,#FCD34D)'},
+    {r:/แกงฮังเล/,       e:'🍖',g:'linear-gradient(135deg,#6B2010,#92400E)'},
+    {r:/ต้มข่า/,         e:'🥥',g:'linear-gradient(135deg,#FEF3C7,#FDE68A)'},
+    {r:/แกงเขียวหวาน/,   e:'🍛',g:'linear-gradient(135deg,#16A34A,#4ADE80)'},
+    {r:/แกงเผ็ดเป็ด/,    e:'🦆',g:'linear-gradient(135deg,#B91C1C,#EA580C)'},
+    {r:/แกงพะแนง/,       e:'🥘',g:'linear-gradient(135deg,#7F1D1D,#B91C1C)'},
+    {r:/แกงมัสมั่น/,     e:'🥔',g:'linear-gradient(135deg,#6B2010,#78350F)'},
+    {r:/ผัดผักบุ้ง/,     e:'🥬',g:'linear-gradient(135deg,#166534,#4ADE80)'},
+    {r:/ไก่ผัดเม็ดมะม่วง/,e:'🥜',g:'linear-gradient(135deg,#B45309,#DC2626)'},
+    {r:/ปลาราดพริก/,     e:'🐟',g:'linear-gradient(135deg,#B91C1C,#F97316)'},
+    {r:/ผัดฉ่า/,         e:'🦑',g:'linear-gradient(135deg,#B91C1C,#16A34A)'},
+    {r:/ผัดเผ็ดปลาดุก/,  e:'🐟',g:'linear-gradient(135deg,#166534,#B91C1C)'},
+    {r:/คั่วกลิ้ง/,      e:'🍖',g:'linear-gradient(135deg,#991B1B,#EA580C)'},
+    {r:/ผัดพริกขิง/,     e:'🐟',g:'linear-gradient(135deg,#DC2626,#D97706)'},
+    {r:/ผัดกะเพรา/,      e:'🌿',g:'linear-gradient(135deg,#166534,#DC2626)'},
+    {r:/ผัดไทย/,         e:'🍜',g:'linear-gradient(135deg,#B45309,#FCD34D)'},
+    {r:/ปลากะพงนึ่ง/,    e:'🐟',g:'linear-gradient(135deg,#0E7490,#4ADE80)'},
+    {r:/ห่อหมก/,         e:'🫘',g:'linear-gradient(135deg,#166534,#4ADE80)'},
+    {r:/น้ำพริกกะปิ/,    e:'🦐',g:'linear-gradient(135deg,#7F1D1D,#DC2626)'},
+    {r:/น้ำพริกลงเรือ/,  e:'🥚',g:'linear-gradient(135deg,#78350F,#D97706)'},
+    {r:/น้ำพริกอ่อง/,    e:'🍅',g:'linear-gradient(135deg,#DC2626,#EA580C)'},
+    {r:/น้ำพริก/,        e:'🌶️',g:'linear-gradient(135deg,#7F1D1D,#B91C1C)'},
+    {r:/หลนกุ้ง/,        e:'🦐',g:'linear-gradient(135deg,#EA580C,#FDE68A)'},
+    {r:/หลน/,            e:'🥣',g:'linear-gradient(135deg,#78350F,#B45309)'},
+    {r:/ทับทิมกรอบ/,     e:'🔴',g:'linear-gradient(135deg,#BE185D,#F9A8D4)'},
+    {r:/ข้าวเหนียวมะม่วง/,e:'🥭',g:'linear-gradient(135deg,#B45309,#FCD34D)'},
+    {r:/ข้าวต้มมัด/,     e:'🎋',g:'linear-gradient(135deg,#166534,#4ADE80)'},
+    {r:/ขนมครก/,         e:'🍡',g:'linear-gradient(135deg,#E2E8F0,#FEF3C7)'},
+    {r:/ไก่/,            e:'🐓',g:'linear-gradient(135deg,#D97706,#FDE68A)'},
+    {r:/หมู/,            e:'🥩',g:'linear-gradient(135deg,#DC2626,#F97316)'},
+    {r:/เนื้อ|วัว/,      e:'🥩',g:'linear-gradient(135deg,#991B1B,#DC2626)'},
+    {r:/กุ้ง/,           e:'🦐',g:'linear-gradient(135deg,#EA580C,#FCA5A5)'},
+    {r:/ปลา/,            e:'🐟',g:'linear-gradient(135deg,#0284C7,#38BDF8)'},
+    {r:/แกง|ต้ม/,        e:'🥘',g:'linear-gradient(135deg,#DC2626,#F97316)'},
+    {r:/ผัด/,            e:'🥄',g:'linear-gradient(135deg,#C2410C,#FCD34D)'},
+    {r:/ยำ|ลาบ/,         e:'🥗',g:'linear-gradient(135deg,#4ADE80,#D97706)'},
+  ];
+  for(const s of m){if(s.r.test(n)) return{emoji:s.e,grad:s.g}}
+  return{emoji:'🍽️',grad:'linear-gradient(135deg,#78716C,#A8A29E)'}
+}
+
+function categorize(n){
+  if(/ข้าวเหนียวมะม่วง|ข้าวต้มมัด|ขนมครก|ทับทิมกรอบ/.test(n)) return'ของหวาน'
+  if(/ข้าว/.test(n)) return'ข้าว'
+  if(/แกง|ต้มยำ|ต้มข่า|โป๊ะแตก|ฮังเล|แกงเลียง/.test(n)) return'แกง'
+  if(/ผัด|คั่วกลิ้ง/.test(n)) return'ผัด'
+  if(/ยำ|ลาบ|ส้มตำ/.test(n)) return'ยำ'
+  if(/ปลา|ห่อหมก|ผัดฉ่า|ผัดเผ็ดปลา|ผัดพริกขิง|ปลาราดพริก/.test(n)) return'ปลา'
+  if(/น้ำพริก|หลน/.test(n)) return'น้ำพริก'
+  return'อื่นๆ'
+}
+
+/* ══════════════════════════════════════
+   HERO FLOATS
+══════════════════════════════════════ */
+;(()=>{
+  const emojis=['🌶️','🧄','🥥','🌿','🍋','🫚','🐟','🍜','🥘','🌾','🦐','🥗','🍗','🥩']
+  const w=document.getElementById('hero-float')
+  emojis.forEach((e,i)=>{
+    const s=document.createElement('span')
+    s.textContent=e
+    s.style.cssText=`left:${(i*7+3)%95}%;top:${(i*11+5)%88}%;--d:${6+i%4}s;--dl:${(i*.7).toFixed(1)}s`
+    w.appendChild(s)
+  })
+})()
+
+/* ══════════════════════════════════════
+   STATE
+══════════════════════════════════════ */
+const DATA_URL='recipes_v2.json'
+let recipes={}, selected=new Set(), checked={}, activeCat='all', query=''
+
+/* ── palette: one color per menu (up to 8 distinct) ── */
+const MENU_PALETTE=[
+  {bg:'#FEE2E2',text:'#9B1C1C',bdr:'#FCA5A5'}, // red
+  {bg:'#FEF3C7',text:'#78350F',bdr:'#FCD34D'}, // amber
+  {bg:'#DCFCE7',text:'#14532D',bdr:'#86EFAC'}, // green
+  {bg:'#DBEAFE',text:'#1E3A8A',bdr:'#93C5FD'}, // blue
+  {bg:'#F3E8FF',text:'#581C87',bdr:'#C4B5FD'}, // purple
+  {bg:'#FCE7F3',text:'#831843',bdr:'#F9A8D4'}, // pink
+  {bg:'#CFFAFE',text:'#0E7490',bdr:'#67E8F9'}, // cyan
+  {bg:'#FFF7ED',text:'#7C2D12',bdr:'#FDBA74'}, // orange
+]
+let menuColorMap={}
+function refreshMenuColors(){
+  menuColorMap={};let i=0
+  for(const mn of selected){menuColorMap[mn]=MENU_PALETTE[i%MENU_PALETTE.length];i++}
+}
+
+/* ══════════════════════════════════════
+   AMOUNT HELPERS
+══════════════════════════════════════ */
+const FRAC={'½':.5,'¼':.25,'¾':.75,'⅓':1/3,'⅔':2/3}
+function parseAmt(s){
+  if(!s) return null; s=String(s).trim()
+  if(FRAC[s]!==undefined) return FRAC[s]
+  for(const[f,v] of Object.entries(FRAC)){
+    if(s.startsWith(f)) return v+(parseFloat(s.slice(f.length))||0)
+    if(s.endsWith(f))   return(parseFloat(s.slice(0,-1))||0)+v
+  }
+  if(s.includes('/')){const[a,b]=s.split('/');return parseFloat(a)/parseFloat(b)}
+  return parseFloat(s)||null
+}
+function dispAmt(s){return s?String(s).trim():''}
+function sumAmts(arr){
+  let t=0
+  for(const a of arr){const v=parseAmt(a);if(v===null)return null;t+=v}
+  return t
+}
+function fmtSum(amts,unit){
+  const t=sumAmts(amts)
+  if(t===null) return amts.join(' + ')+' '+unit
+  const d=Number.isInteger(t)?t:parseFloat(t.toFixed(2))
+  return d+' '+unit
+}
+function ingKey(name,unit){return(name+'|'+unit).toLowerCase().replace(/\s+/g,'')}
+function escH(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')
+}
+
+/* ══════════════════════════════════════
+   BUILD INGREDIENT MAP
+══════════════════════════════════════ */
+function buildIngMap(){
+  const map={}
+  function add(ing,label){
+    const k=ingKey(ing.name,ing.unit)
+    if(!map[k]) map[k]={name:ing.name,unit:ing.unit,menus:[]}
+    const ex=map[k].menus.find(m=>m.menuName===label)
+    const amt=dispAmt(ing.amount||'')
+    if(ex){if(amt&&ex.amount)ex.amount+=' + '+amt;else if(amt)ex.amount=amt}
+    else map[k].menus.push({menuName:label,amount:amt})
+  }
+  for(const mn of selected){
+    const r=recipes[mn];if(!r)continue
+    for(const ing of(r.ingredients||[])) add(ing,mn)
+    if(r.sub_recipe?.ingredients) for(const ing of r.sub_recipe.ingredients) add(ing,mn)
+  }
+  return map
+}
+
+/* ══════════════════════════════════════
+   RENDER INGREDIENTS
+══════════════════════════════════════ */
+function menuEmoji(name){return getDishStyle(name).emoji}
+
+function renderIngredients(){
+  const container=document.getElementById('ing-list')
+  const countBadge=document.getElementById('ing-count')
+  const progWrap=document.getElementById('prog-wrap')
+
+  if(!selected.size){
+    container.innerHTML=`<div class="empty"><div class="empty-icon">🛒</div><div class="empty-title">ยังไม่มีรายการ</div><div class="empty-desc">เลือกเมนูก่อนนะคะ</div></div>`
+    countBadge.textContent='0'
+    progWrap.style.display='none'
+    return
+  }
+
+  /* assign a color to each selected menu */
+  refreshMenuColors()
+
+  const map=buildIngMap()
+  const all=Object.entries(map)
+  const shared=all.filter(([,v])=>v.menus.length>=2)
+  const single=all.filter(([,v])=>v.menus.length===1)
+
+  countBadge.textContent=all.length
+
+  // Progress bar
+  const done=all.filter(([k])=>!!checked[k]).length
+  progWrap.style.display='flex'
+  document.getElementById('prog-fill').style.width=all.length?(done/all.length*100)+'%':'0%'
+  document.getElementById('prog-txt').textContent=`${done}/${all.length}`
+
+  /* ── Legend: color key for each menu ── */
+  const legendItems=[...selected].map(mn=>{
+    const c=menuColorMap[mn]||MENU_PALETTE[0]
+    return`<span class="legend-chip" style="background:${c.bg};color:${c.text};border-color:${c.bdr}">${menuEmoji(mn)} ${escH(mn)}</span>`
+  }).join('')
+  let html=`<div class="menu-legend">${legendItems}</div>`
+
+  // ── SHARED group ──
+  if(shared.length){
+    html+=`<div class="ing-group">
+      <div class="ing-group-label shared-lbl">
+        🔴 วัตถุดิบร่วมหลายเมนู <span class="gl-n">${shared.length}</span>
+      </div>`
+    for(const[k,v] of shared) html+=renderIngItem(k,v,true)
+    html+=`</div>`
+  }
+
+  // ── SINGLE group ──
+  if(single.length){
+    html+=`<div class="ing-group">
+      <div class="ing-group-label">
+        วัตถุดิบอื่นๆ <span class="gl-n">${single.length}</span>
+      </div>`
+    for(const[k,v] of single) html+=renderIngItem(k,v,false)
+    html+=`</div>`
+  }
+
+  container.innerHTML=html
+
+  // Bind checkboxes
+  container.querySelectorAll('.ing-cb').forEach(cb=>{
+    const k=cb.dataset.key
+    if(checked[k]){cb.classList.add('checked');cb.closest('.ing-item').classList.add('done')}
+    cb.addEventListener('click',e=>{
+      e.stopPropagation()
+      checked[k]=!checked[k]
+      cb.classList.toggle('checked',!!checked[k])
+      cb.closest('.ing-item').classList.toggle('done',!!checked[k])
+      // update progress only
+      const all2=Object.keys(buildIngMap())
+      const done2=all2.filter(k2=>!!checked[k2]).length
+      document.getElementById('prog-fill').style.width=all2.length?(done2/all2.length*100)+'%':'0%'
+      document.getElementById('prog-txt').textContent=`${done2}/${all2.length}`
+    })
+  })
+}
+
+function renderIngItem(k,v,isShared){
+  const isDone=!!checked[k]
+
+  let topHtml=''
+  let amtHtml=''
+  let extraHtml=''
+
+  if(isShared){
+    const amts=v.menus.map(m=>m.amount)
+    /* colored chips for each menu in the strip */
+    const strips=v.menus.map(m=>{
+      const c=menuColorMap[m.menuName]||MENU_PALETTE[0]
+      return`<span class="ing-shared-badge" style="background:${c.bg};color:${c.text};border:1.5px solid ${c.bdr}">${menuEmoji(m.menuName)} ${escH(m.menuName)}</span>`
+    }).join('')
+    topHtml=`<div class="ing-shared-strip"><span class="ing-shared-icon">🔴 ${v.menus.length} เมนู</span>${strips}</div>`
+    amtHtml=`<span class="ing-amount">${escH(fmtSum(amts,v.unit))}</span>`
+    const rows=v.menus.map(m=>{
+      const c=menuColorMap[m.menuName]||MENU_PALETTE[0]
+      return`<div class="ing-bd-row"><span style="background:${c.bg};color:${c.text};border-radius:4px;padding:1px 6px;font-size:11px;font-weight:700">${menuEmoji(m.menuName)} ${escH(m.menuName)}</span>: <span class="bd-amt">${escH(m.amount)} ${escH(v.unit)}</span></div>`
+    }).join('')
+    extraHtml=`<div class="ing-breakdown">${rows}</div>`
+  } else {
+    const c=menuColorMap[v.menus[0].menuName]||MENU_PALETTE[0]
+    amtHtml=`<span class="ing-amount">${escH(dispAmt(v.menus[0].amount))}</span>
+             <span class="ing-unit">${escH(v.unit)}</span>`
+    extraHtml=`<div><span class="ing-menu-chip" style="background:${c.bg};color:${c.text};border-color:${c.bdr}">${menuEmoji(v.menus[0].menuName)} ${escH(v.menus[0].menuName)}</span></div>`
+  }
+
+  return`<div class="ing-item${isShared?' shared':''}${isDone?' done':''}">
+    <div class="ing-cb${isDone?' checked':''}" data-key="${escH(k)}"></div>
+    <div class="ing-body">
+      ${topHtml}
+      <div class="ing-row1">
+        <span class="ing-name">${escH(v.name)}</span>
+        ${amtHtml}
+      </div>
+      ${extraHtml}
+    </div>
+  </div>`
+}
+
+/* ══════════════════════════════════════
+   RENDER STEPS
+══════════════════════════════════════ */
+function renderSteps(){
+  const container=document.getElementById('steps-list')
+  const badge=document.getElementById('steps-count')
+
+  if(!selected.size){
+    container.innerHTML=`<div class="empty"><div class="empty-icon">👨‍🍳</div><div class="empty-title">เลือกเมนูก่อน</div><div class="empty-desc">จะได้ดูวิธีทำทีละขั้นตอน</div></div>`
+    badge.textContent='0'
+    return
+  }
+
+  let html='', count=0
+  for(const mn of selected){
+    const r=recipes[mn];if(!r)continue
+    const steps=r.steps||[];if(!steps.length)continue
+    count++
+    const id='sc_'+count
+
+    function buildRows(list){
+      let h='',n=0
+      for(const t of list){
+        const tx=t.trim();if(!tx)continue
+        const m=tx.match(/^(\d+)\.\s*([\s\S]+)/)
+        if(m){n++;h+=`<div class="step-row"><div class="step-num">${n}</div><div class="step-text">${escH(m[2]).replace(/\n/g,'<br>')}</div></div>`}
+        else{h+=`<div class="step-row tip"><div class="step-num">💡</div><div class="step-text">${escH(tx).replace(/\n/g,'<br>')}</div></div>`}
+      }
+      return h
+    }
+
+    let sh=buildRows(steps)
+    const sr=r.sub_recipe
+    if(sr?.steps?.length){
+      sh+=`<div class="step-sub-lbl">${escH(sr.name||'วิธีทำพริกแกง')}</div>`
+      sh+=buildRows(sr.steps)
+    }
+    const total=steps.length+(sr?.steps?.length||0)
+    const h=total*80+160
+    html+=`<div class="steps-card">
+      <div class="steps-card-head" data-w="${id}">
+        <span class="sch-e">${menuEmoji(mn)}</span>
+        <span class="sch-n">${escH(mn)}</span>
+        <span class="sch-c">${total} ขั้นตอน</span>
+        <span class="sch-t">▾</span>
+      </div>
+      <div class="steps-body" id="${id}" style="max-height:${h}px">
+        <div class="steps-list">${sh}</div>
+      </div>
+    </div>`
+  }
+
+  if(!html){
+    container.innerHTML=`<div class="empty"><div class="empty-icon">📖</div><div class="empty-title">ไม่พบวิธีทำ</div></div>`
+  } else {
+    container.innerHTML=html
+    container.querySelectorAll('.steps-card-head').forEach(h=>{
+      h.addEventListener('click',()=>{
+        const b=document.getElementById(h.dataset.w)
+        const cl=b.classList.toggle('closed')
+        h.classList.toggle('closed',cl)
+      })
+    })
+  }
+  badge.textContent=count
+}
+
+/* ══════════════════════════════════════
+   RENDER GRID
+══════════════════════════════════════ */
+function renderGrid(){
+  const grid=document.getElementById('recipe-grid')
+  const names=Object.keys(recipes)
+
+  grid.innerHTML=names.map(name=>{
+    const{emoji,grad}=getDishStyle(name)
+    const cat=categorize(name)
+    return`<div class="card" data-name="${escH(name)}" data-cat="${escH(cat)}">
+      <div class="card-vis" style="background:${grad}">
+        <div class="card-ck">✓</div>
+        <span class="card-emoji">${emoji}</span>
+      </div>
+      <div class="card-body">
+        <div class="card-name">${escH(name)}</div>
+        <div><span class="card-cat cat-${escH(cat)}">${escH(cat)}</span></div>
+      </div>
+    </div>`
+  }).join('')
+
+  grid.addEventListener('click',e=>{
+    const card=e.target.closest('.card');if(!card)return
+    const name=card.dataset.name
+    if(selected.has(name)){selected.delete(name);card.classList.remove('selected')}
+    else{selected.add(name);card.classList.add('selected')}
+    updateUI()
+  })
+}
+
+/* ══════════════════════════════════════
+   FILTER + SEARCH
+══════════════════════════════════════ */
+function applyFilter(){
+  const q=query.toLowerCase()
+  let vis=0
+  document.querySelectorAll('.card').forEach(c=>{
+    const matchCat=activeCat==='all'||c.dataset.cat===activeCat
+    const matchQ=!q||c.dataset.name.includes(q)
+    const show=matchCat&&matchQ
+    c.classList.toggle('hidden',!show)
+    if(show)vis++
+  })
+  let nr=document.getElementById('no-res-msg')
+  if(!vis){
+    if(!nr){
+      nr=document.createElement('div')
+      nr.id='no-res-msg'
+      nr.className='no-res'
+      nr.innerHTML=`<div class="no-res-icon">🔍</div><p></p>`
+      document.getElementById('recipe-grid').appendChild(nr)
+    }
+    nr.querySelector('p').textContent=`ไม่พบเมนู "${query}"`
+  } else nr?.remove()
+  document.getElementById('grid-count').textContent=`${vis} เมนู`
+}
+
+document.getElementById('filter-in').addEventListener('click',e=>{
+  const btn=e.target.closest('.f-btn');if(!btn)return
+  activeCat=btn.dataset.cat
+  document.querySelectorAll('.f-btn').forEach(b=>b.classList.toggle('on',b===btn))
+  applyFilter()
+})
+document.getElementById('search-q').addEventListener('input',e=>{
+  query=e.target.value.trim();applyFilter()
+})
+
+/* ══════════════════════════════════════
+   UPDATE UI
+══════════════════════════════════════ */
+function updateUI(){
+  const n=selected.size
+  // Navbar pill
+  const ns=document.getElementById('nav-sel')
+  ns.classList.toggle('has-items',n>0)
+  document.getElementById('nav-sel-n').textContent=n
+  // Results section
+  const rs=document.getElementById('results-section')
+  if(n>0){
+    rs.style.display='block'
+    rs.style.animation='none'
+    void rs.offsetHeight
+    rs.style.animation=''
+    renderIngredients()
+    renderSteps()
+    // Smooth scroll to results
+    if(n===1) setTimeout(()=>rs.scrollIntoView({behavior:'smooth',block:'start'}),120)
+  } else {
+    rs.style.display='none'
+  }
+}
+
+// Navbar pill click → scroll to results
+document.getElementById('nav-sel').addEventListener('click',()=>{
+  if(selected.size) document.getElementById('results-section').scrollIntoView({behavior:'smooth',block:'start'})
+  else showToast('🍽️ เลือกเมนูก่อนนะคะ')
+})
+
+/* ══════════════════════════════════════
+   BUTTONS
+══════════════════════════════════════ */
+document.getElementById('btn-clear').addEventListener('click',()=>{
+  selected.clear();checked={}
+  document.querySelectorAll('.card.selected').forEach(c=>c.classList.remove('selected'))
+  updateUI()
+  showToast('🗑️ ล้างรายการเรียบร้อย')
+})
+
+function buildCopyText(){
+  if(!selected.size)return''
+  const now=new Date().toLocaleDateString('th-TH',{day:'numeric',month:'long',year:'numeric'})
+  const map=buildIngMap()
+  const shared=Object.entries(map).filter(([,v])=>v.menus.length>=2)
+  const single=Object.entries(map).filter(([,v])=>v.menus.length===1)
+  let lines=[`🛒 รายการวัตถุดิบ — ${[...selected].join(' + ')}`,`📅 ${now}`,'─'.repeat(34)]
+  if(shared.length){
+    lines.push('','🔴 วัตถุดิบร่วม')
+    for(const[k,v]of shared){
+      const amts=v.menus.map(m=>m.amount)
+      lines.push(`${checked[k]?'[✓]':'[ ]'} ${v.name} — ${fmtSum(amts,v.unit)}`)
+      for(const m of v.menus) lines.push(`      · ${m.menuName}: ${m.amount} ${v.unit}`)
+    }
+  }
+  if(single.length){
+    lines.push('','วัตถุดิบอื่นๆ')
+    for(const[k,v]of single) lines.push(`${checked[k]?'[✓]':'[ ]'} ${v.name} — ${dispAmt(v.menus[0].amount)} ${v.unit}`)
+  }
+  return lines.join('\n')
+}
+
+document.getElementById('btn-copy').addEventListener('click',async()=>{
+  const text=buildCopyText()
+  if(!text){showToast('⚠️ ยังไม่ได้เลือกเมนู');return}
+  try{
+    await navigator.clipboard.writeText(text)
+    showToast('📋 คัดลอกรายการแล้ว — วางในโน้ตได้เลย!')
+  } catch{prompt('คัดลอกรายการวัตถุดิบ:',text)}
+})
+
+/* ══════════════════════════════════════
+   TOAST
+══════════════════════════════════════ */
+let toastT
+function showToast(msg){
+  const el=document.getElementById('toast')
+  el.textContent=msg;el.classList.add('show')
+  clearTimeout(toastT)
+  toastT=setTimeout(()=>el.classList.remove('show'),2700)
+}
+
+/* ══════════════════════════════════════
+   BROADCAST SYNC
+══════════════════════════════════════ */
+try{
+  const bc=new BroadcastChannel('thai-cooking-sync')
+  bc.onmessage=e=>{if(e.data?.type==='ck'){checked={...checked,...e.data.p};renderIngredients()}}
+}catch(e){}
+
+/* ══════════════════════════════════════
+   BOOTSTRAP
+══════════════════════════════════════ */
+fetch('recipes_v2.json')
+  .then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()})
+  .then(data=>{
+    recipes=data
+    const names=Object.keys(recipes)
+    const totalIng=Object.values(recipes).reduce((s,r)=>s+(r.ingredients||[]).length,0)
+    document.getElementById('stat-n').textContent=names.length
+    document.getElementById('stat-i').textContent=totalIng
+    document.getElementById('grid-count').textContent=`${names.length} เมนู`
+    renderGrid()
+    applyFilter()
+    showToast('✅ โหลด '+names.length+' เมนูสำเร็จ!')
+  })
+  .catch(err=>{
+    document.getElementById('stat-n').textContent='❌'
+    document.getElementById('recipe-grid').innerHTML=`<div class="no-res" style="grid-column:1/-1;padding:60px 20px"><div class="no-res-icon">❌</div><p>โหลดข้อมูลไม่ได้ — ตรวจสอบว่าไฟล์ recipes_v2.json อยู่ในโฟลเดอร์เดียวกัน</p></div>`
+    console.error(err)
+  })
+</script>
+</body>
+</html>
